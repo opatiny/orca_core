@@ -14,13 +14,12 @@ from orca_core import OrcaHand
 from orca_core import MockOrcaHand
 
 
-
 def add_hand_arguments(parser: ArgumentParser, *, mock_default: bool = False) -> None:
     parser.add_argument(
         "config_path",
         nargs="?",
         default=None,
-        help="Path to config.yaml. Defaults to the bundled model when omitted.",
+        help="Path to config.yaml. Defaults to the bundled model when omitted. Also specifies the location of the calibration.yaml file if it exists in the same folder.",
     )
     parser.add_argument(
         "--mock",
@@ -54,7 +53,9 @@ def shutdown_hand(hand) -> None:
         print(f"disconnect() failed: {exc}")
 
 
-def prepare_output_dir(path: str | None, *, default_name: str = "replay_sequences") -> Path:
+def prepare_output_dir(
+    path: str | None, *, default_name: str = "replay_sequences"
+) -> Path:
     output_dir = Path(path) if path is not None else Path.cwd() / default_name
     output_dir = output_dir.expanduser().resolve()
     output_dir.mkdir(parents=True, exist_ok=True)

@@ -44,7 +44,9 @@ def _resolve_model_name_from_type(hand_type: str | None) -> str:
     if not normalized_type:
         return DEFAULT_MODEL_NAME
     if normalized_type not in {"left", "right"}:
-        raise ValueError(f"Unsupported hand type: {hand_type!r}. Expected 'left' or 'right'.")
+        raise ValueError(
+            f"Unsupported hand type: {hand_type!r}. Expected 'left' or 'right'."
+        )
 
     return f"orcahand-{normalized_type}"
 
@@ -72,7 +74,7 @@ def _resolve_config_path(
 
 
 def _resolve_calibration_path(config_path: str, calibration_path: str | None) -> str:
-    """Resolve the companion ``calibration.yaml`` path for a config file."""
+    """Resolve the companion ``calibration.yaml`` path for a config file. If no calibration path is provided, the default is to look for a ``calibration.yaml`` in the same directory as the config."""
     if calibration_path is not None:
         return os.path.abspath(calibration_path)
     return os.path.join(os.path.dirname(config_path), "calibration.yaml")
@@ -153,13 +155,19 @@ class BaseHandConfig:
 
         for joint in self.joint_ids:
             if joint not in self.joint_roms_dict:
-                raise HandConfigValidationError(f"ROM for joint {joint} is not defined.")
+                raise HandConfigValidationError(
+                    f"ROM for joint {joint} is not defined."
+                )
 
         for joint, rom in self.joint_roms_dict.items():
             if joint not in self.joint_ids:
-                raise HandConfigValidationError(f"Joint {joint} in ROMs is not defined.")
+                raise HandConfigValidationError(
+                    f"Joint {joint} in ROMs is not defined."
+                )
             if len(rom) != 2 or rom[1] - rom[0] <= 0:
-                raise HandConfigValidationError(f"ROM {rom} for joint {joint} is not valid.")
+                raise HandConfigValidationError(
+                    f"ROM {rom} for joint {joint} is not valid."
+                )
 
         for joint in self.neutral_position:
             if joint not in self.joint_ids:
@@ -271,7 +279,10 @@ class OrcaHandConfig(BaseHandConfig):
                 "from the bundled model or your hand's backup."
             )
 
-        kwargs = {"config_path": resolved_config_path, "calibration_path": resolved_calibration_path}
+        kwargs = {
+            "config_path": resolved_config_path,
+            "calibration_path": resolved_calibration_path,
+        }
 
         if "type" in config:
             kwargs["type"] = config["type"]
@@ -390,6 +401,7 @@ class OrcaHandConfig(BaseHandConfig):
                 ENCODER_JOINTS_ALL,
                 JOINT_TO_ENCODER_SLOT,
             )
+
             for joint in self.joint_encoder_joints:
                 if str(joint).lower() == ENCODER_JOINTS_ALL:
                     continue
@@ -443,7 +455,10 @@ class OrcaHandTouchConfig(OrcaHandConfig):
         if "finger_to_sensor_id" in sensors:
             sensor_kwargs["finger_to_sensor_id"] = dict(sensors["finger_to_sensor_id"])
 
-        return cls(**{f.name: getattr(base, f.name) for f in dataclasses.fields(base)}, **sensor_kwargs)
+        return cls(
+            **{f.name: getattr(base, f.name) for f in dataclasses.fields(base)},
+            **sensor_kwargs,
+        )
 
     def validate_config(self) -> None:
         super().validate_config()

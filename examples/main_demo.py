@@ -13,16 +13,6 @@ from demo_runner import run_demo
 def main() -> int:
     """Play the packaged "main" demo sequence (open -> power grasp -> pinch -> neutral).
 
-    Command-line arguments:
-        config_path (str, default: bundled model): Path to the hand's ``config.yaml``.
-        --mock (flag, default: ``False``): Run on a :class:`~orca_core.MockOrcaHand`
-            instead of physical hardware.
-        --cycles (int, default: ``3``): Number of times the pose sequence is repeated.
-        --num-steps (int, default: ``8``): Interpolation steps per pose transition;
-            higher is smoother and slower.
-        --step-size (float, default: ``0.02``): Seconds to pause between interpolation
-            steps.
-
     See :meth:`~orca_core.base_hand.BaseHand.set_joint_positions` for the exact behaviour of
     ``--num-steps`` and ``--step-size``.
 
@@ -53,6 +43,10 @@ def main() -> int:
     args = parser.parse_args()
 
     hand = create_hand(args.config_path, use_mock=args.mock)
+
+    if not hand.calibrated:
+        print("No calibration file found. Running calibration procedure...")
+
     try:
         connect_hand(hand)
         hand.init_joints(force_calibrate=args.mock)
