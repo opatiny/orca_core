@@ -20,7 +20,8 @@ def add_hand_arguments(parser: ArgumentParser, *, mock_default: bool = False) ->
         "config_path",
         nargs="?",
         default=None,
-        help="Path to config.yaml. Defaults to the bundled model when omitted.",
+        help="Path to config.yaml. Defaults to the bundled model when omitted. A "
+        "calibration.yaml sitting in the same folder is picked up with it.",
     )
     parser.add_argument(
         "--mock",
