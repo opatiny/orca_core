@@ -1,5 +1,3 @@
-
-
 import argparse
 import time
 from pathlib import Path
@@ -17,22 +15,52 @@ from orca_core.utils.cli import (
 
 def _build_output_path(output_dir: Path, prefix: str) -> Path:
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    stem = f"{prefix}_continuous_angles_{timestamp}" if prefix else f"continuous_angles_{timestamp}"
+    stem = (
+        f"{prefix}_continuous_angles_{timestamp}"
+        if prefix
+        else f"continuous_angles_{timestamp}"
+    )
     return output_dir / f"{stem}.yaml"
 
 
 def main() -> int:
+    """Record joint angles at a fixed rate while moving the orca hand manually.
+
+    Torque is released after :meth:`~orca_core.hardware_hand.OrcaHand.init_joints` so the
+    joints move freely, and the recording is written under
+    :func:`~orca_core.utils.cli.prepare_output_dir` with an interactively entered filename
+    prefix. Play it back with ``replay_continuous.py``.
+
+    Returns the process exit code: always 0.
+    """
     parser = argparse.ArgumentParser(
         description="Continuously record joint angles while manually moving the hand."
     )
     add_hand_arguments(parser)
-    parser.add_argument("--frequency", type=float, default=50.0)
-    parser.add_argument("--duration", type=float, default=None)
-    parser.add_argument("--output-dir", type=str, default=None)
+    parser.add_argument(
+        "--frequency",
+        type=float,
+        default=50.0,
+        help="Sampling rate of the recording. Stored in the file as sampling_frequency_hz, "
+        "which sets the playback rate in replay_continuous.py. Default: 50 Hz.",
+    )
+    parser.add_argument(
+        "--duration",
+        type=float,
+        default=None,
+        help="Stop recording after this many seconds. Default: unlimited, stop with Ctrl+C.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Directory where the recording YAML is written. Default: ./replay_sequences.",
+    )
     parser.add_argument(
         "--force-calibrate",
         action="store_true",
-        help="Run calibration even if calibration.yaml already exists.",
+        help="Run calibration even if calibration.yaml already exists. "
+        "Default: off.",
     )
     args = parser.parse_args()
 
@@ -72,7 +100,9 @@ def main() -> int:
         print("\nRecording stopped by user.")
     finally:
         if data["angles"]:
-            output_path.write_text(yaml.safe_dump(data, sort_keys=False), encoding="utf-8")
+            output_path.write_text(
+                yaml.safe_dump(data, sort_keys=False), encoding="utf-8"
+            )
             print(f"Saved {len(data['angles'])} frames to {output_path}")
         shutdown_hand(hand)
 

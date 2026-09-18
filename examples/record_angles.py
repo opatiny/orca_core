@@ -1,5 +1,3 @@
-
-
 import argparse
 import time
 from pathlib import Path
@@ -17,11 +15,24 @@ from orca_core.utils.cli import (
 
 def _build_output_path(output_dir: Path, prefix: str) -> Path:
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    stem = f"{prefix}_replay_sequence_{timestamp}" if prefix else f"replay_sequence_{timestamp}"
+    stem = (
+        f"{prefix}_replay_sequence_{timestamp}"
+        if prefix
+        else f"replay_sequence_{timestamp}"
+    )
     return output_dir / f"{stem}.yaml"
 
 
 def main() -> int:
+    """Record discrete joint-space waypoints, one per keypress, while moving the orca hand manually.
+
+    Torque is released after :meth:`~orca_core.hardware_hand.OrcaHand.init_joints` so the
+    joints move freely, and the waypoints are written under
+    :func:`~orca_core.utils.cli.prepare_output_dir` with an interactively entered filename
+    prefix. Play them back with ``replay_angles.py``.
+
+    Returns the process exit code: always 0.
+    """
     parser = argparse.ArgumentParser(
         description="Record discrete joint-space waypoints by manually posing the hand."
     )
@@ -30,12 +41,13 @@ def main() -> int:
         "--output-dir",
         type=str,
         default=None,
-        help="Directory where the replay YAML will be written.",
+        help="Directory where the replay YAML is written. Default: ./replay_sequences.",
     )
     parser.add_argument(
         "--force-calibrate",
         action="store_true",
-        help="Run calibration even if calibration.yaml already exists.",
+        help="Run calibration even if calibration.yaml already exists. "
+        "Default: off.",
     )
     args = parser.parse_args()
 
@@ -53,7 +65,9 @@ def main() -> int:
         hand.init_joints(force_calibrate=args.force_calibrate or args.mock)
         hand.disable_torque()
 
-        print("Torque disabled. Manually move the hand, then press Enter to capture a waypoint.")
+        print(
+            "Torque disabled. Manually move the hand, then press Enter to capture a waypoint."
+        )
         print("Press Ctrl+C when you are done recording.")
 
         while True:
@@ -74,7 +88,9 @@ def main() -> int:
                 },
                 "waypoints": replay_buffer,
             }
-            output_path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+            output_path.write_text(
+                yaml.safe_dump(payload, sort_keys=False), encoding="utf-8"
+            )
             print(f"Saved {len(replay_buffer)} waypoints to {output_path}")
         shutdown_hand(hand)
 
