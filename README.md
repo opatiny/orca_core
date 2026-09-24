@@ -10,55 +10,58 @@
 
 Orca Core is the core control package of the ORCA Hand. It's used to abstract hardware, provide scripts for calibration, tensioning and to control the hand with simple high-level control methods in joint space.
 
+## Documentation
+
+Go check the official documentation: https://deepwiki.com/orcahand/orca_core
+
 ## Get Started
 
 To get started with Orca Core, follow these steps:
 
 1. **Sync a local development environment with `uv`**:
 
-    ```sh
-    uv sync --group dev
-    ```
+   ```sh
+   uv sync --group dev
+   ```
 
-    This creates a local `.venv` and installs the package plus development dependencies.
+   This creates a local `.venv` and installs the package plus development dependencies.
 
 2. **Run commands through `uv`**:
 
-    ```sh
-    uv run pytest
-    ```
+   ```sh
+   uv run pytest
+   ```
 
-    If you prefer an activated shell, you can still use:
+   If you prefer an activated shell, you can still use:
 
-    ```sh
-    source .venv/bin/activate      # macOS / Linux
-    .venv\Scripts\activate         # Windows
-    ```
+   ```sh
+   source .venv/bin/activate      # macOS / Linux
+   .venv\Scripts\activate         # Windows
+   ```
 
-    End users who do not use `uv` can still install the package with:
+   End users who do not use `uv` can still install the package with:
 
-    ```sh
-    pip install .
-    ```
+   ```sh
+   pip install .
+   ```
 
 3. **Check the configuration file**:
-
-    - Review the config file (e.g., `orca_core/models/v2/orcahand-right/config.yaml`) and make sure it matches your hardware setup.
+   - Review the config file (e.g., `orca_core/models/v2/orcahand-right/config.yaml`) and make sure it matches your hardware setup.
 
 4. **Run the tension and calibration scripts**:
 
-    ```sh
-    uv run python scripts/tension.py orca_core/models/v2/orcahand-right/config.yaml
-    uv run python scripts/calibrate.py orca_core/models/v2/orcahand-right/config.yaml
-    ```
+   ```sh
+   uv run python scripts/tension.py orca_core/models/v2/orcahand-right/config.yaml
+   uv run python scripts/calibrate.py orca_core/models/v2/orcahand-right/config.yaml
+   ```
 
-    Replace the path with your specific hand model folder if needed.
+   Replace the path with your specific hand model folder if needed.
 
 5. **Move the hand to the neutral position**:
 
-    ```sh
-    uv run python scripts/neutral.py orca_core/models/v2/orcahand-right/config.yaml
-    ```
+   ```sh
+   uv run python scripts/neutral.py orca_core/models/v2/orcahand-right/config.yaml
+   ```
 
 ---
 
@@ -102,8 +105,7 @@ However, you can declare them explicitly in `config.yaml`. Useful when:
 
 ```yaml
 # Optional overrides:   auto-detected if omitted
-port: /dev/ttyACM0      # /dev/cu.usbmodemXXXX on macOS, COM3 on Windows
-baudrate: 1000000       # 1M for v2; 3M for v1
-motor_type: dynamixel   # or 'feetech'
+port: /dev/ttyACM0 # /dev/cu.usbmodemXXXX on macOS, COM3 on Windows
+baudrate: 1000000 # 1M for v2; 3M for v1
+motor_type: dynamixel # or 'feetech'
 ```
-
